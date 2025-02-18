@@ -21,22 +21,12 @@
                 <li><a href="#" onclick="showHome()">Home</a></li>
                 <li><a href="#" onclick="showContent('user')">User</a></li>
                 <li>
-                    <!-- Dropdown for Beverage -->
+                    <!-- Dropdown for Product -->
                     <div class="dropdown">
-                        <a href="#" onclick="toggleDropdown('beverageDropdown')">Beverage</a>
-                        <ul id="beverageDropdown" class="dropdown-content" style="display: none;">
-                            <li><a href="#" onclick="showContent('allBeverages')">All Beverages</a></li>
-                            <li><a href="#" onclick="showContent('addBeverage')">Add New Beverage</a></li>
-                        </ul>
-                    </div>
-                </li>
-                <li>
-                    <!-- Dropdown for Snacks -->
-                    <div class="dropdown">
-                        <a href="#" onclick="toggleDropdown('snacksDropdown')">Snacks</a>
-                        <ul id="snacksDropdown" class="dropdown-content" style="display: none;">
-                            <li><a href="#" onclick="showContent('allSnacks')">All Snacks</a></li>
-                            <li><a href="#" onclick="showContent('addSnacks')">Add New Snack</a></li>
+                        <a href="#" onclick="toggleDropdown('productDropdown')">Product</a>
+                        <ul id="productDropdown" class="dropdown-content" style="display: none;">
+                            <li><a href="#" onclick="showContent('allProducts')">Show All Products</a></li>
+                            <li><a href="#" onclick="showContent('addProduct')">Add New Product</a></li>
                         </ul>
                     </div>
                 </li>
@@ -54,13 +44,12 @@
         function showHome() {
             const content = `
                 <h1>Welcome to the Admin Dashboard</h1>
-                <p>Manage Users, Beverages, Snacks, and Orders from the sidebar options. Select a category from the navigation menu to get started.</p>
+                <p>Manage Users, Products, and Orders from the sidebar options. Select a category from the navigation menu to get started.</p>
             `;
             document.getElementById('main-content').innerHTML = content;
         }
 
         function showContent(section) {
-            let content = '';
             if (section === 'user') {
                 fetch('select.php')
                     .then(response => response.text())
@@ -68,72 +57,85 @@
                         document.getElementById('main-content').innerHTML = data;
                     })
                     .catch(error => console.error('Error loading content:', error));
-            } else if (section === 'allBeverages') {
-                fetch('allbeverage.php')
+            } else if (section === 'allProducts') {
+                fetch('product.php')
                     .then(response => response.text())
                     .then(data => {
                         document.getElementById('main-content').innerHTML = `
-                            <h1>All Beverages</h1>
-                            <div id="beveragesList">${data}</div>
+                            <h1>All Products</h1>
+                            <div id="productsList">${data}</div>
                         `;
                     })
-                    .catch(error => console.error('Error loading beverages:', error));
-            } else if (section === 'addBeverage') {
-                content = `
-                    <h1>Add New Beverage</h1>
-                    <form id="addBeverageForm" enctype="multipart/form-data">
-                        <label for="beverageName">Beverage Name:</label>
-                        <input type="text" id="beverageName" name="beverageName" required>
+                    .catch(error => console.error('Error loading products:', error));
+            } else if (section === 'addProduct') {
+                const content = `
+                    <h1>Add New Product</h1>
+                    <form id="addProductForm" enctype="multipart/form-data">
+                        <label for="productName">Product Name:</label>
+                        <input type="text" id="productName" name="productName" required>
                         <br>
-                        <label for="beveragePrice">Price:</label>
-                        <input type="number" id="beveragePrice" name="beveragePrice" required>
+                        <label for="productPrice">Price:</label>
+                        <input type="number" id="productPrice" name="productPrice" required>
                         <br>
-                        <label for="beveragePhoto">Upload Photo:</label>
-                        <input type="file" id="beveragePhoto" name="beveragePhoto" accept="image/*" required>
+                        <label for="productType">Product Type:</label>
+                        <select id="productType" name="productType" required>
+                            <option value="1">Snacks</option>
+                            <option value="2">Beverage</option>
+                        </select>
                         <br>
-                        <button type="submit">Add Beverage</button>
+                        <label for="productPhoto">Upload Photo:</label>
+                        <input type="file" id="productPhoto" name="productPhoto" accept="image/*" required>
+                        <br>
+                        <button type="submit">Add Product</button>
                     </form>
                 `;
                 document.getElementById('main-content').innerHTML = content;
-            } else if (section === 'allSnacks') {
-                content = `<h1>All Snacks</h1><p>Here you can view all the snacks available in TIC EATS.</p>`;
-            } else if (section === 'addSnacks') {
-                content = `
-                    <h1>Add New Snack</h1>
-                    <form id="addSnackForm" enctype="multipart/form-data">
-                        <label for="snackName">Snack Name:</label>
-                        <input type="text" id="snackName" name="snackName" required>
-                        <br>
-                        <label for="snackPrice">Price:</label>
-                        <input type="number" id="snackPrice" name="snackPrice" required>
-                        <br>
-                        <label for="snackPhoto">Upload Photo:</label>
-                        <input type="file" id="snackPhoto" name="snackPhoto" accept="image/*" required>
-                        <br>
-                        <button type="submit">Add Snack</button>
-                    </form>
-                `;
-                document.getElementById('main-content').innerHTML = content;
+
+                // Add form submit handler using JavaScript
+                const form = document.getElementById('addProductForm');
+                form.addEventListener('submit', function(event) {
+                    event.preventDefault(); // Prevent default form submission
+
+                    const formData = new FormData(form);
+
+                    fetch('insert_product.php', {
+                        method: 'POST',
+                        body: formData
+                    })
+                    .then(response => response.text())
+                    .then(data => {
+                        alert('Product added successfully!');
+                        showContent('allProducts');
+                    })
+                    .catch(error => {
+                        console.error('Error:', error);
+                        alert('There was an error adding the product.');
+                    });
+                });
             } else if (section === 'order') {
-                content = `<h1>Order Management</h1><p>Here you can manage the orders placed by customers.</p>`;
+                // Fetch orders from fetch_order.php and display
+                fetch('fetch_order.php')
+                    .then(response => response.text())
+                    .then(data => {
+                        document.getElementById('main-content').innerHTML = `
+                            <h1>Orders</h1>
+                            <div>${data}</div>
+                        `;
+                    })
+                    .catch(error => console.error('Error loading orders:', error));
             }
         }
 
         function toggleDropdown(dropdownId) {
             const dropdown = document.getElementById(dropdownId);
-            if (dropdown.style.display === 'none' || dropdown.style.display === '') {
-                dropdown.style.display = 'block';
-            } else {
-                dropdown.style.display = 'none';
-            }
+            dropdown.style.display = dropdown.style.display === 'none' || dropdown.style.display === '' ? 'block' : 'none';
         }
 
         function logout() {
-            console.log('Logout function triggered');
             const userConfirmation = confirm("Are you sure you want to log out?");
             if (userConfirmation) {
                 alert('Logging out...');
-                window.location.href = '../alogin/adminlogin.php'; // Update path if necessary
+                window.location.href = '../alogin/adminlogin.php';
             } else {
                 alert('Logout canceled.');
             }

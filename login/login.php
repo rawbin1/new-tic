@@ -20,7 +20,7 @@ if ($con->connect_error) {
         $hashed_password = $row['Password'];
 
         if ($password === $hashed_password) {  
-            echo "Login successful. Welcome";
+            header("Location: ../Final-TICEats/homepage1.php");
         } else {
             echo "Invalid password.";
         }
